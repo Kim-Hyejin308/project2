@@ -1,0 +1,210 @@
+<h2 class="sr-only">쓸랭 배달료 계산기 — 오토바이 / 용달차 자동 선택</h2>
+<style>
+.sg{display:flex;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);overflow:hidden;}
+.sb{flex:1;padding:6px 3px;text-align:center;font-size:11px;cursor:pointer;color:var(--color-text-secondary);background:var(--color-background-primary);border:none;border-right:0.5px solid var(--color-border-tertiary);line-height:1.4;}
+.sb:last-child{border-right:none;}
+.br{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);}
+.br:last-child{border:none;}
+.brs{font-weight:500;color:var(--color-text-primary) !important;}
+.cs{margin-bottom:14px;}
+.lbl{font-size:12px;color:var(--color-text-secondary);margin-bottom:5px;display:block;}
+</style>
+
+<div id="vBar" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);margin-bottom:1.25rem;border:0.5px solid var(--color-border-tertiary);">
+  <div id="vIcon" style="width:36px;height:36px;border-radius:var(--border-radius-md);background:var(--color-background-info);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--color-text-info);flex-shrink:0;letter-spacing:-0.5px;">MO</div>
+  <div style="flex:1;">
+    <div id="vName" style="font-size:13px;font-weight:500;color:var(--color-text-primary);">오토바이</div>
+    <div id="vDesc" style="font-size:11px;color:var(--color-text-secondary);">기본료 1,500원 · 기준 500원/km · 휘발유 · 연비 25km/L</div>
+  </div>
+  <div id="vTag" style="font-size:11px;padding:3px 10px;border-radius:12px;background:var(--color-background-info);color:var(--color-text-info);white-space:nowrap;flex-shrink:0;">자동 선택</div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+<div>
+
+<div class="cs" style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;">
+  <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;">이번 주 유가 입력 (오피넷 기준)</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div id="gasCard" style="border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:8px;">
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:3px;">휘발유 — 오토바이</div>
+      <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="number" id="gasPrice" value="1650" min="1000" max="3000" step="10" style="width:68px;font-size:12px;"/><span style="font-size:11px;color:var(--color-text-secondary);">원/L</span></div>
+      <div style="font-size:10px;color:var(--color-text-secondary);">기준 1,650원/L</div>
+    </div>
+    <div id="dslCard" style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px;opacity:0.4;">
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:3px;">경유 — 용달차</div>
+      <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><input type="number" id="dslPrice" value="1450" min="1000" max="3000" step="10" style="width:68px;font-size:12px;"/><span style="font-size:11px;color:var(--color-text-secondary);">원/L</span></div>
+      <div style="font-size:10px;color:var(--color-text-secondary);">기준 1,450원/L</div>
+    </div>
+  </div>
+</div>
+
+<div class="cs">
+  <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+    <span class="lbl" style="margin:0;">거리</span>
+    <span id="distOut" style="font-size:13px;font-weight:500;color:var(--color-text-primary);">5 km</span>
+  </div>
+  <input type="range" id="dist" min="1" max="50" value="5" step="1" style="width:100%;"/>
+</div>
+
+<div class="cs">
+  <span class="lbl">무게</span>
+  <div class="sg" id="wtGrp">
+    <button class="sb" data-v="1.0" data-kg="lt1">1kg 미만</button>
+    <button class="sb" data-v="1.2" data-kg="1to3">1~3kg</button>
+    <button class="sb" data-v="1.5" data-kg="3to10">3~10kg</button>
+    <button class="sb" data-v="2.0" data-kg="gt10">10kg 이상</button>
+  </div>
+  <div id="wtNote" style="display:none;font-size:11px;color:var(--color-text-warning);margin-top:4px;">10kg 이상 — 용달차로 자동 전환</div>
+</div>
+
+<div class="cs">
+  <span class="lbl">파손 위험도</span>
+  <div class="sg" id="frGrp">
+    <button class="sb" data-v="1.0">일반</button>
+    <button class="sb" data-v="1.3">파손주의</button>
+    <button class="sb" data-v="1.6">고가 / 정밀</button>
+  </div>
+</div>
+
+<div class="cs">
+  <span class="lbl">부피</span>
+  <div class="sg" id="vlGrp">
+    <button class="sb" data-v="1.0" data-size="s">소형 (~30cm)</button>
+    <button class="sb" data-v="1.2" data-size="m">중형 (~60cm)</button>
+    <button class="sb" data-v="1.5" data-size="l">대형 (60cm+)</button>
+  </div>
+  <div id="vlNote" style="display:none;font-size:11px;color:var(--color-text-warning);margin-top:4px;">중형 / 대형 — 용달차로 자동 전환</div>
+</div>
+
+<div class="cs">
+  <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+    <span class="lbl" style="margin:0;">플랫폼 수수료율</span>
+    <span id="commOut" style="font-size:13px;font-weight:500;color:var(--color-text-primary);">10%</span>
+  </div>
+  <input type="range" id="comm" min="5" max="20" value="10" step="1" style="width:100%;"/>
+</div>
+
+</div>
+
+<div>
+  <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:10px;">
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:3px;">총 청구 금액</div>
+    <div id="totalAmt" style="font-size:26px;font-weight:500;color:var(--color-text-primary);">—</div>
+    <div id="minNote" style="display:none;font-size:11px;color:var(--color-text-secondary);margin-top:3px;"></div>
+  </div>
+
+  <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;">
+    <div class="br"><span>기본료</span><span id="brBase" style="color:var(--color-text-primary);">—</span></div>
+    <div class="br"><span>거리 요금 <span id="brKmInfo" style="font-size:10px;"></span></span><span id="brDist" style="color:var(--color-text-primary);">—</span></div>
+    <div class="br"><span>유가 계수 <span id="brFuelInfo" style="font-size:10px;color:var(--color-text-secondary);"></span></span><span id="brFuel" style="color:var(--color-text-primary);">—</span></div>
+    <div class="br"><span>무게 계수</span><span id="brWt" style="color:var(--color-text-primary);">—</span></div>
+    <div class="br"><span>파손 계수</span><span id="brFr" style="color:var(--color-text-primary);">—</span></div>
+    <div class="br"><span>부피 계수</span><span id="brVl" style="color:var(--color-text-primary);">—</span></div>
+    <div class="br brs"><span>배달료</span><span id="brDelivery">—</span></div>
+    <div class="br"><span>플랫폼 수수료 <span id="brCommPct" style="font-size:10px;"></span></span><span id="brComm" style="color:var(--color-text-primary);">—</span></div>
+    <div class="br brs"><span>배달원 수령액</span><span id="brRider">—</span></div>
+  </div>
+
+  <div style="margin-top:10px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px;">
+    <div id="fuelLine" style="font-size:11px;color:var(--color-text-secondary);"></div>
+  </div>
+</div>
+</div>
+
+<script>
+const MOTO={baseFee:1500,baseKm:500,mpkm:1650/25,minFee:3000,baseFuel:1650,fuelType:'휘발유'};
+const TRUCK={baseFee:5000,baseKm:1200,mpkm:1450/8,minFee:10000,baseFuel:1450,fuelType:'경유'};
+function fmt(n){return Math.round(n).toLocaleString('ko-KR')+'원';}
+function r100(n){return Math.round(n/100)*100;}
+function setOn(btn){
+  btn.closest('.sg').querySelectorAll('.sb').forEach(b=>{
+    b.style.background='';b.style.color='';b.style.fontWeight='';delete b.dataset.on;
+  });
+  btn.dataset.on='1';
+}
+function getOn(id){return document.querySelector('#'+id+' [data-on="1"]');}
+function paintActive(yd){
+  const bg=yd?'#633806':'#3C3489', clr=yd?'#FAC775':'#EEEDFE';
+  document.querySelectorAll('[data-on="1"]').forEach(b=>{b.style.background=bg;b.style.color=clr;b.style.fontWeight='500';});
+}
+
+function calc(){
+  const gas=parseFloat(document.getElementById('gasPrice').value)||1650;
+  const dsl=parseFloat(document.getElementById('dslPrice').value)||1450;
+  const dist=parseFloat(document.getElementById('dist').value);
+  const wt=getOn('wtGrp'), fr=getOn('frGrp'), vl=getOn('vlGrp');
+  if(!wt||!fr||!vl)return;
+  const commPct=parseInt(document.getElementById('comm').value);
+  const wtV=parseFloat(wt.dataset.v), frV=parseFloat(fr.dataset.v), vlV=parseFloat(vl.dataset.v);
+  const isGt10=wt.dataset.kg==='gt10', isLrgVol=vl.dataset.size!=='s';
+  const yd=isGt10||isLrgVol;
+  const cfg=yd?TRUCK:MOTO;
+  const curFuel=yd?dsl:gas;
+  const fixedKm=cfg.baseKm-cfg.mpkm;
+  const fc=curFuel/cfg.baseFuel;
+  const kmRate=fixedKm+cfg.mpkm*fc;
+  const distFee=kmRate*dist;
+  const rawFee=(cfg.baseFee+distFee)*wtV*frV*vlV;
+  const minApplied=rawFee<cfg.minFee;
+  const delivery=r100(Math.max(cfg.minFee,rawFee));
+  const commAmt=r100(delivery*commPct/100);
+  const total=delivery+commAmt;
+  const rider=delivery-commAmt;
+
+  document.getElementById('distOut').textContent=dist+' km';
+  document.getElementById('commOut').textContent=commPct+'%';
+  document.getElementById('totalAmt').textContent=fmt(total);
+  const mn=document.getElementById('minNote');
+  mn.style.display=minApplied?'block':'none';
+  mn.textContent=minApplied?'최소요금 '+fmt(cfg.minFee)+' 적용':'';
+  document.getElementById('brBase').textContent=fmt(cfg.baseFee);
+  document.getElementById('brKmInfo').textContent='('+Math.round(kmRate)+'원/km × '+dist+'km)';
+  document.getElementById('brDist').textContent=fmt(distFee);
+  document.getElementById('brFuelInfo').textContent=cfg.fuelType+(fc>=1?'  +':' ')+((fc-1)*100).toFixed(1)+'%';
+  document.getElementById('brFuel').textContent='×'+fc.toFixed(3);
+  document.getElementById('brWt').textContent='×'+wtV.toFixed(1);
+  document.getElementById('brFr').textContent='×'+frV.toFixed(1);
+  document.getElementById('brVl').textContent='×'+vlV.toFixed(1);
+  document.getElementById('brDelivery').textContent=fmt(delivery)+(minApplied?' (최소요금)':'');
+  document.getElementById('brCommPct').textContent='('+commPct+'%)';
+  document.getElementById('brComm').textContent=fmt(commAmt);
+  document.getElementById('brRider').textContent=fmt(rider);
+
+  const diff=curFuel-cfg.baseFuel, sign=diff>=0?'+':'';
+  document.getElementById('fuelLine').textContent=
+    cfg.fuelType+' '+curFuel.toLocaleString()+'원/L '+
+    '(기준 대비 '+sign+Math.round(diff)+'원, '+sign+((diff/cfg.baseFuel)*100).toFixed(1)+'%) · '+
+    '실효 km단가 '+Math.round(kmRate)+'원/km';
+
+  paintActive(yd);
+  const vi=document.getElementById('vIcon'),vn=document.getElementById('vName'),vd=document.getElementById('vDesc'),vt=document.getElementById('vTag');
+  const gc=document.getElementById('gasCard'),dc=document.getElementById('dslCard');
+  if(yd){
+    vi.textContent='TR';vi.style.background='var(--color-background-warning)';vi.style.color='var(--color-text-warning)';
+    vn.textContent='용달차 1톤';
+    vd.textContent='기본료 5,000원 · 기준 1,200원/km · 경유 · 연비 8km/L · 최소요금 10,000원';
+    vt.style.background='var(--color-background-warning)';vt.style.color='var(--color-text-warning)';
+    gc.style.opacity='0.4';gc.style.border='0.5px solid var(--color-border-tertiary)';
+    dc.style.opacity='1';dc.style.border='0.5px solid var(--color-border-secondary)';
+  } else {
+    vi.textContent='MO';vi.style.background='var(--color-background-info)';vi.style.color='var(--color-text-info)';
+    vn.textContent='오토바이';
+    vd.textContent='기본료 1,500원 · 기준 500원/km · 휘발유 · 연비 25km/L · 최소요금 3,000원';
+    vt.style.background='var(--color-background-info)';vt.style.color='var(--color-text-info)';
+    gc.style.opacity='1';gc.style.border='0.5px solid var(--color-border-secondary)';
+    dc.style.opacity='0.4';dc.style.border='0.5px solid var(--color-border-tertiary)';
+  }
+  document.getElementById('wtNote').style.display=isGt10?'block':'none';
+  document.getElementById('vlNote').style.display=isLrgVol?'block':'none';
+}
+
+document.querySelectorAll('.sg .sb').forEach(btn=>{
+  btn.addEventListener('click',()=>{setOn(btn);calc();});
+});
+['gasPrice','dslPrice','dist','comm'].forEach(id=>document.getElementById(id).addEventListener('input',calc));
+
+document.querySelector('#wtGrp .sb').dataset.on='1';
+document.querySelector('#frGrp .sb').dataset.on='1';
+document.querySelector('#vlGrp .sb').dataset.on='1';
+calc();
+</script>
