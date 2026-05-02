@@ -21,6 +21,7 @@ interface StoredUser {
 
 // 인메모리 유저 저장소 (기본 테스트 계정 포함)
 const userStore = new Map<string, StoredUser>([
+  // 일반 사용자 테스트 계정
   ['test@sseulang.kr', {
     password: 'password1234',
     user: {
@@ -32,7 +33,20 @@ const userStore = new Map<string, StoredUser>([
       role: 'USER',
       createdAt: new Date().toISOString(),
     }
-  }]
+  }],
+  // 관리자 테스트 계정 (UC-40)
+  ['admin@sseulang.kr', {
+    password: 'admin1234',
+    user: {
+      id: 999,
+      email: 'admin@sseulang.kr',
+      nickname: '관리자',
+      profileImageUrl: null,
+      trustScore: 100,
+      role: 'ADMIN',
+      createdAt: new Date().toISOString(),
+    }
+  }],
 ])
 
 let nextId = 2

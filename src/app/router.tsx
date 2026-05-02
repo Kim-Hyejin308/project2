@@ -4,6 +4,7 @@ import { lazy } from 'react'
 
 // 공통 레이아웃 컴포넌트
 import RootLayout from '@/shared/ui/RootLayout'
+import AdminLayout from '@/shared/ui/AdminLayout'  // 관리자 전용 사이드바 레이아웃
 
 // 라우트 가드 컴포넌트: 인증 상태에 따른 접근 제어
 import ProtectedRoute from '@/shared/ui/ProtectedRoute'      // 로그인 사용자 전용
@@ -80,6 +81,8 @@ const AdminNoticePage    = lazy(() => import('@/pages/admin/AdminNoticePage'))  
 const AdminBannerPage    = lazy(() => import('@/pages/admin/AdminBannerPage'))    // 관리자 배너 관리
 const AdminDepositPage      = lazy(() => import('@/pages/admin/AdminDepositPage'))      // 관리자 보증금 관리
 const AdminEscrowConfigPage = lazy(() => import('@/pages/admin/AdminEscrowConfigPage')) // 관리자 에스크로 설정
+const AdminTradePage        = lazy(() => import('@/pages/admin/AdminTradePage'))        // 관리자 거래 관리 (UC-43)
+const AdminBrandsPage       = lazy(() => import('@/pages/admin/AdminBrandsPage'))       // 관리자 브랜드 입점 문의 (UC-46)
 
 // 404 페이지
 const NotFoundPage       = lazy(() => import('@/pages/NotFoundPage')) // 페이지를 찾을 수 없을 때 표시
@@ -161,21 +164,28 @@ export const router = createBrowserRouter([
   },
 
   // ── 관리자 라우트
-  { path: '/admin/login', element: <AdminLoginPage /> },
+  { path: '/admin/login', element: <AdminLoginPage /> },  // 관리자 로그인 (레이아웃 없음)
   {
-    element: <AdminRoute />,
+    element: <AdminRoute />,   // 관리자 권한 가드
     children: [
-      { path: '/admin',           element: <Navigate to="/admin/dashboard" replace /> },
-      { path: '/admin/dashboard', element: <AdminDashboard /> },
-      { path: '/admin/users',     element: <AdminUserPage /> },
-      { path: '/admin/items',     element: <AdminItemPage /> },
-      { path: '/admin/reports',   element: <AdminReportPage /> },
-      { path: '/admin/withdraws', element: <AdminWithdrawPage /> },
-      { path: '/admin/delivery',  element: <AdminDeliveryPage /> },
-      { path: '/admin/notices',   element: <AdminNoticePage /> },
-      { path: '/admin/banners',   element: <AdminBannerPage /> },
-      { path: '/admin/deposits',      element: <AdminDepositPage /> },
-      { path: '/admin/escrow-config', element: <AdminEscrowConfigPage /> },
+      {
+        element: <AdminLayout />,  // 사이드바 레이아웃
+        children: [
+          { path: '/admin',              element: <Navigate to="/admin/dashboard" replace /> },
+          { path: '/admin/dashboard',    element: <AdminDashboard /> },       // UC-41 대시보드
+          { path: '/admin/users',        element: <AdminUserPage /> },        // UC-42 회원 관리
+          { path: '/admin/items',        element: <AdminItemPage /> },        // UC-44 물품 관리
+          { path: '/admin/trades',       element: <AdminTradePage /> },       // UC-43 거래 관리
+          { path: '/admin/delivery',     element: <AdminDeliveryPage /> },    // UC-47 배달대행
+          { path: '/admin/reports',      element: <AdminReportPage /> },      // UC-45 신고 관리
+          { path: '/admin/brands',       element: <AdminBrandsPage /> },      // UC-46 브랜드 문의
+          { path: '/admin/notices',      element: <AdminNoticePage /> },      // UC-48 공지/이벤트
+          { path: '/admin/banners',      element: <AdminBannerPage /> },      // UC-49 배너 관리
+          { path: '/admin/deposits',     element: <AdminDepositPage /> },     // 보증금 관리
+          { path: '/admin/withdraws',    element: <AdminWithdrawPage /> },    // 출금 관리
+          { path: '/admin/escrow-config',element: <AdminEscrowConfigPage /> },// 에스크로 설정
+        ],
+      },
     ],
   },
 
